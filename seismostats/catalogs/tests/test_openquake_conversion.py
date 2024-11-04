@@ -13,6 +13,7 @@ pytest.importorskip("openquake.hmtk.seismicity.catalogue",
                     reason="Testing OpenQuake conversion requires\
                     the optional dependency openquake to be installed")
 from openquake.hmtk.seismicity.catalogue import Catalogue as OQCatalog
+from openquake.hmtk.parsers.catalogue import CsvCatalogueParser
 
 PATH_RESOURCES = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                               'data')
@@ -66,7 +67,10 @@ historical_oq_catalogue = OQCatalog.make_from_dict({
     'minute': np.array([5, 7, 30], dtype=int),
     'second': np.array([0, 15, 59], dtype=float),
     'magnitude': np.array([1.0, 2.5, 3.9], dtype=float)
-}
+})
+
+sera_file = os.path.join(PATH_RESOURCES, 'sera_hist.csv')
+sera_hist = CsvCatalogueParser(sera_file).read_file()
 
 
 @pytest.mark.parametrize("df", [simple_df, fdsnws])
@@ -125,7 +129,8 @@ def compare_hmtk(cat1: OQCatalog, cat2: OQCatalog):
 
 
 @pytest.mark.parametrize("oq_catalogue", [simple_oq_catalogue,
-                                          historical_oq_catalogue])
+                                          historical_oq_catalogue,
+                                          sera_hist])
 def test_hmtk_full_round(oq_catalogue: OQCatalog):
     df = SeismoCatalog.from_openquake(oq_catalogue)
     reconstructed = df.to_openquake()
@@ -149,7 +154,7 @@ def test_from_openquake_simple():
     df = SeismoCatalog.from_openquake(simple_oq_catalogue)
     assert _check_required_cols(df, REQUIRED_COLS_CATALOG)
     for col in COMMON_COLS:
-        np.testing.assert_allclose(df[col], simple_hmtk_data[col],
+        np.testing.assert_allclose(df[col], simple_oq_catalogue[col],
                                    rtol=1e-5, atol=1e-8)
 
 
