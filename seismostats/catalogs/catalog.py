@@ -11,7 +11,6 @@ from math import log10
 
 import numpy as np
 import pandas as pd
-from shapely import Polygon
 try:
     from openquake.hmtk.seismicity.catalogue import Catalogue as OQCatalogue
 except ImportError:
@@ -26,6 +25,7 @@ from seismostats.io.parser import parse_quakeml, parse_quakeml_file
 from seismostats.utils import (_check_required_cols, _render_template,
                                require_cols)
 from seismostats.utils.binning import bin_to_precision
+from shapely import Polygon
 
 REQUIRED_COLS_CATALOG = ['longitude', 'latitude', 'depth',
                          'time', 'magnitude']
@@ -89,7 +89,7 @@ class Catalog(pd.DataFrame):
 
     _metadata = ['name', '_required_cols', 'mc',
                  'delta_m', 'b_value', 'starttime', 'endtime',
-                 'bounding_polygon']
+                 'bounding_polygon', 'depth_min', 'depth_max']
     _required_cols = REQUIRED_COLS_CATALOG
 
     def __init__(
